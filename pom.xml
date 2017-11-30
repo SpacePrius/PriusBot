@@ -3,8 +3,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>priusbot</groupId>
-  <artifactId>1</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <artifactId>priusbot</artifactId>
+  <version>0.0.1</version>
   <packaging>jar</packaging>
 
   <name>1</name>
