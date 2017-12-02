@@ -37,6 +37,11 @@
     <version>49a6f26</version>
    <!-- <classifier>shaded</classifier> Include this line if you want a shaded jar (all the Discord4J dependencies bundled into one jar)-->
   </dependency>
+    <dependency>
+    	<groupId>ch.qos.logback</groupId>
+    	<artifactId>logback-classic</artifactId>
+    	<version>1.2.3</version>
+    </dependency>
   </dependencies>
    <build>
    <plugins>
