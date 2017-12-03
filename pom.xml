@@ -5,7 +5,7 @@
 
   <groupId>priusbot</groupId>
   <artifactId>priusbot</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.3</version>
   <packaging>jar</packaging>
 
   <name>1</name>
@@ -37,6 +37,16 @@
     <version>49a6f26</version>
    <!-- <classifier>shaded</classifier> Include this line if you want a shaded jar (all the Discord4J dependencies bundled into one jar)-->
   </dependency>
+    <dependency>
+    	<groupId>ch.qos.logback</groupId>
+    	<artifactId>logback-classic</artifactId>
+    	<version>1.2.3</version>
+    </dependency>
+    <dependency>
+    	<groupId>org.jsoup</groupId>
+    	<artifactId>jsoup</artifactId>
+    	<version>1.11.2</version>
+    </dependency>
   </dependencies>
    <build>
    <plugins>
@@ -78,4 +88,3 @@
 </plugins>
 </build>
 </project>
-
