@@ -1,7 +1,16 @@
 package Priusbot;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.URL;
 import java.util.Arrays;
+import java.util.Properties;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -20,21 +29,75 @@ import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.EmbedBuilder;
+import sx.blah.discord.util.MessageBuilder;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
 
 public class priusbot {
+	public static String prefix = null;
 	private static final Logger logger = LoggerFactory.getLogger("Priusbot");
-	private static final String TOKEN = "yourtokenhere"; // Insert Token Here
-	private static final String PREFIX = "p!"; // Prefix used for all commands, enter it in here.
+	// Insert Token Here
+	// Prefix used for all commands, enter it in here.
 	private static IDiscordClient client;
+	
+	public static void createFile() {
+		Properties prop = new Properties();
+		OutputStream output = null;
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		try {
+			output = new FileOutputStream("bot.properties");
+			// Get Variables and assign them
+			System.out.println("Insert token"); // Token
+			String token = br.readLine();
+			logger.debug("Input:" + token);
+			prop.setProperty("Token", token);
+			// Prefix
+			System.out.println("Input prefix");
+			String prefix = br.readLine();
+			prop.setProperty("Prefix", prefix);
+			logger.debug("Input:" + prefix);
+			// Save Properties
+			prop.store(output, null);
 
+		} catch (IOException io) {
+			io.printStackTrace();
+		}
+
+	}
 	public static void main(String[] args) throws DiscordException, RateLimitException {
 		System.out.println("PriusBot v. 0.0.4 \"Inspiring\"");
 		System.out.println("Copyright (c) 2017 SpacePrius Released under MIT license.");
 		System.out.println("Starting up...");
+		System.out.println("Loading bot.properties...");
+		Properties prop = new Properties();
+		InputStream input = null;
+		String token = null;
+		
+		try {
+			input = new FileInputStream("bot.properties");
+			prop.load(input);
+			if (prop.isEmpty()) {
+				System.out.println("bot.properties not found, creating...");
+				logger.debug("Launching File Wizard...");
+				createFile(); 
+			} 
+				// load token
+			prop.load(input);
+				token = prop.getProperty("Token");
+				prefix = prop.getProperty("Prefix");
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 
-		client = new ClientBuilder().withToken(TOKEN).build(); // Creating a client.
+		client = new ClientBuilder().withToken(token).build(); // Creating a client.
 		client.getDispatcher().registerListener(new priusbot());
 		client.login();
 	}
@@ -57,8 +120,8 @@ public class priusbot {
 		String profilePicture = user.getAvatarURL();
 		String[] split = message.getContent().split(" "); // Splits message by space
 		// Test to see if it even works
-		if (split.length >= 1 && split[0].startsWith(PREFIX)) {
-			String command = split[0].replaceFirst(PREFIX, "");
+		if (split.length >= 1 && split[0].startsWith(prefix)) {
+			String command = split[0].replaceFirst(prefix, "");
 			String[] args = split.length >= 2 ? Arrays.copyOfRange(split, 1, split.length) : new String[0];
 			// Test Command
 			if (command.equalsIgnoreCase("test")) {
@@ -67,7 +130,7 @@ public class priusbot {
 			}
 			if (command.equalsIgnoreCase("embedtest")) {
 				embed(user, profilePicture, channel);
-				logger.debug("Embed test command called by" + user.getName() + "in" + channel.getName());
+				logger.debug("Embed test command called by " + user.getName() + "in " + channel.getName());
 			}
 			if (command.equalsIgnoreCase("inspireme")) {
 				inspire(channel);
@@ -103,10 +166,12 @@ public class priusbot {
 		Document doc = Jsoup.connect("http://inspirobot.me/api?generate=true").get(); // Retrieves the api page
 		String body = doc.select("body").text(); // Takes api output, selects the body, and turns that into text
 		logger.debug("inspirobot api output:" + body);
-		EmbedBuilder inspiration = new EmbedBuilder(); // New Constructor
-		inspiration.withImage(body); // Inserts body as a field.
-		EmbedObject finalimage = inspiration.build(); // Builds the embed
-		channel.sendMessage(finalimage); // Sends embed
+		URL connection = new URL(body); //New URL from API
+		InputStream openConnection = connection.openStream(); //Turns into InputStream
+		MessageBuilder message = new MessageBuilder(client);
+		message.withFile(openConnection, "inspire.png"); //Message with this file
+		message.withChannel(channel); //Message in channel
+		message.build(); // Sends embed
 		logger.debug("Message sent in channel: " + channel.getName());
 	}
 }
