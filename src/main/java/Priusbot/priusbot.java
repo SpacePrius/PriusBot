@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -167,7 +168,9 @@ public class priusbot {
 		String body = doc.select("body").text(); // Takes api output, selects the body, and turns that into text
 		logger.debug("inspirobot api output:" + body);
 		URL connection = new URL(body); //New URL from API
-		InputStream openConnection = connection.openStream(); //Turns into InputStream
+		URLConnection connectionOpen = connection.openConnection(); //Turns into Opens connection
+		connectionOpen.addRequestProperty("User-Agent", "Mozilla/4.0");
+		InputStream openConnection = connectionOpen.getInputStream();
 		MessageBuilder message = new MessageBuilder(client);
 		message.withFile(openConnection, "inspire.png"); //Message with this file
 		message.withChannel(channel); //Message in channel
